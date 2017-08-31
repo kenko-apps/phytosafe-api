@@ -3,6 +3,9 @@ const router = express.Router();
 
 const indexController = require('../controllers/index');
 
+const queries = require('../db/queries');
+
+
 router.get('/', function (req, res, next) {
   const renderObject = {};
   renderObject.title = 'Welcome to Express!';
@@ -14,5 +17,7 @@ router.get('/', function (req, res, next) {
     }
   });
 });
+
+router.get('/api/traitement/:id', queries.getTraitementById);
 
 module.exports = router;
