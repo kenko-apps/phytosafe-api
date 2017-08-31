@@ -63,27 +63,35 @@ function getTraitementById(req, res, next) {
     console.log("createFormulaire");
     //oncologue_referent et patient_id peuvent être undéfinis, les autres champs sont obligatoires
     if(req.body.oncologue_referent===undefined) {req.body.oncologue_referent=''};
-    if(req.body.patient_id===undefined) {req.body.patient_id=null};
-    req.body.patient_id = parseInt(req.body.patient_id);
     req.body.datetime_creation = (Date.now() / 1000.0);
-    // les 2 inserts sont faits à la suite. une fait une transaction pour ne pas salir la base :
-    // tout est inséré ou rien n'est inséré
-    db.tx('transaction createFormulaire', function(t) {
-      return t.batch([
-        // premier insert
-        // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le cancer est déjà ajouté pour ce patient
-        // on pourrait gérer ce cas avec "ON CONFLICT DO NOTHING"
-        t.none('INSERT INTO patient_has_cancer(patient_id, cancer_id)' +
-        'SELECT ${patient_id}, ${cancer_id} WHERE NOT EXISTS' +
-        '(SELECT 1 FROM patient_has_cancer WHERE patient_id = ${patient_id}' +
-        'AND cancer_id = ${cancer_id})', req.body),
-        //deuxième insert
-        t.one('INSERT INTO formulaire(oncologue_referent, patient_id, cancer_id, datetime_creation)' +
-        'VALUES(${oncologue_referent}, ${patient_id}, ${cancer_id}, to_timestamp(${datetime_creation}))' + 
-        'RETURNING id', req.body)
-      ]);
-    })
-      .then(function (data) {
+    var request;
+    if(req.body.patient_id===undefined) {
+      //Dans ce cas, un seul insert
+      request = db.one('INSERT INTO formulaire(oncologue_referent, cancer_id, datetime_creation)' +
+      'VALUES(${oncologue_referent}, ${cancer_id}, to_timestamp(${datetime_creation}))' + 
+      'RETURNING id', req.body);
+    } else {
+      req.body.patient_id = parseInt(req.body.patient_id);
+      // On doit faire 2 inserts. On fait une transaction pour ne pas salir la base :
+      // tout est inséré ou rien n'est inséré
+      request = db.tx('transaction createFormulaire', function(t) {
+        return t.batch([
+          // premier insert
+          // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le cancer est déjà ajouté pour ce patient
+          // on pourrait gérer ce cas avec "ON CONFLICT DO NOTHING" mais on pourrait rater d'autres erreurs
+          t.none('INSERT INTO patient_has_cancer(patient_id, cancer_id)' +
+          'SELECT ${patient_id}, ${cancer_id} WHERE NOT EXISTS' +
+          '(SELECT 1 FROM patient_has_cancer WHERE patient_id = ${patient_id}' +
+          'AND cancer_id = ${cancer_id})', req.body),
+          //deuxième insert
+          t.one('INSERT INTO formulaire(oncologue_referent, patient_id, cancer_id, datetime_creation)' +
+          'VALUES(${oncologue_referent}, ${patient_id}, ${cancer_id}, to_timestamp(${datetime_creation}))' + 
+          'RETURNING id', req.body)
+        ]);
+      })
+    }
+
+    request.then(function (data) {
         res.status(200)
           .json({
             status: 'success',
