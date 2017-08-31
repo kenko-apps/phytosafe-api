@@ -20,6 +20,7 @@ router.get('/', function (req, res, next) {
 
 router.get('/api/traitement/:id', queries.getTraitementById);
 router.get('/api/traitements/:type', queries.getTraitementsByType);
+router.get('/api/traitements/', queries.getTraitementsByType);
 
 
 module.exports = router;

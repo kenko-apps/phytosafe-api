@@ -17,9 +17,13 @@ function getTraitementById(req, res, next) {
   }
 
   function getTraitementsByType(req, res, next) {
-    var traitementType = req.params.type;
-    db.any('SELECT * FROM traitement WHERE type_traitement_id = $1', traitementType)
-      .then(function (data) {
+    var request;
+    if(req.params.type===undefined) {
+      request = db.any('SELECT * FROM traitement');
+    } else {
+      request = db.any('SELECT * FROM traitement WHERE type_traitement_id = $1', req.params.type);
+    }
+    request.then(function (data) {
         res.status(200)
           .json({
             status: 'success',
