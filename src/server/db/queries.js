@@ -71,7 +71,7 @@ function getTraitementById(req, res, next) {
     db.tx('transaction createFormulaire', function(t) {
       return t.batch([
         // premier insert
-        // La clause WHERE permet de gérer le cas ou le cancer est déjà ajouté pour ce patient
+        // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le cancer est déjà ajouté pour ce patient
         // on pourrait gérer ce cas avec "ON CONFLICT DO NOTHING"
         t.none('INSERT INTO patient_has_cancer(patient_id, cancer_id)' +
         'SELECT ${patient_id}, ${cancer_id} WHERE NOT EXISTS' +
