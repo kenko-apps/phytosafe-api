@@ -19,5 +19,7 @@ router.get('/', function (req, res, next) {
 });
 
 router.get('/api/traitement/:id', queries.getTraitementById);
+router.get('/api/traitements/:type', queries.getTraitementsByType);
+
 
 module.exports = router;
