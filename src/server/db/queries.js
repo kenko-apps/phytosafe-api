@@ -59,6 +59,7 @@ function getTraitementById(req, res, next) {
   }
 
   function createFormulaire(req, res, next) {
+    //chaine de test : curl --data "oncologue_referent=Docteur%20Gougiss&patient_id=2&cancer_id=UTERU" http://127.0.0.1:3000/api/newformulaire
     console.log("createFormulaire");
     //oncologue_referent et patient_id peuvent être undéfinis, les autres champs sont obligatoires
     if(req.body.oncologue_referent===undefined) {req.body.oncologue_referent=''};
