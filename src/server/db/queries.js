@@ -1,6 +1,10 @@
 const db = require('./connection');
 
+//toutes les vérification des données entrée sont à faire.
+
+
 function getTraitementById(req, res, next) {
+    console.log("getTraitementById");
     var traitementId = parseInt(req.params.id);
     db.one('SELECT * FROM traitement WHERE id = $1', traitementId)
       .then(function (data) {
@@ -17,6 +21,7 @@ function getTraitementById(req, res, next) {
   }
 
   function getTraitementsByType(req, res, next) {
+    console.log("getTraitementsByType");
     var request;
     if(req.params.type===undefined) {
       request = db.any('SELECT * FROM traitement');
@@ -36,10 +41,64 @@ function getTraitementById(req, res, next) {
       });
   }
 
-  
+  function createPatient(req, res, next) {
+    console.log("createPatient");
+    db.one('INSERT INTO patient(datetime_inscription)' +
+        'VALUES(to_timestamp($1)) RETURNING id', (Date.now() / 1000.0))
+      .then(function (data) {
+        res.status(200)
+          .json({
+            status: 'success',
+            data: data,
+            message: 'Nouveau patient créé'
+          });
+      })
+      .catch(function (err) {
+        return next(err);
+      });
+  }
+
+  function createFormulaire(req, res, next) {
+    console.log("createFormulaire");
+    //oncologue_referent et patient_id peuvent être undéfinis, les autres champs sont obligatoires
+    if(req.body.oncologue_referent===undefined) {req.body.oncologue_referent=''};
+    if(req.body.patient_id===undefined) {req.body.patient_id=null};
+    req.body.patient_id = parseInt(req.body.patient_id);
+    req.body.datetime_creation = (Date.now() / 1000.0);
+    // les 2 inserts sont faits à la suite. une fait une transaction pour ne pas salir la base :
+    // tout est inséré ou rien n'est inséré
+    db.tx('transaction createFormulaire', function(t) {
+      return t.batch([
+        // premier insert
+        // La clause WHERE permet de gérer le cas ou le cancer est déjà ajouté pour ce patient
+        // on pourrait gérer ce cas avec "ON CONFLICT DO NOTHING"
+        t.none('INSERT INTO patient_has_cancer(patient_id, cancer_id)' +
+        'SELECT ${patient_id}, ${cancer_id} WHERE NOT EXISTS' +
+        '(SELECT 1 FROM patient_has_cancer WHERE patient_id = ${patient_id}' +
+        'AND cancer_id = ${cancer_id})', req.body),
+        //deuxième insert
+        t.one('INSERT INTO formulaire(oncologue_referent, patient_id, cancer_id, datetime_creation)' +
+        'VALUES(${oncologue_referent}, ${patient_id}, ${cancer_id}, to_timestamp(${datetime_creation}))' + 
+        'RETURNING id', req.body)
+      ]);
+    })
+      .then(function (data) {
+        res.status(200)
+          .json({
+            status: 'success',
+            data: data,
+            message: 'Formulaire inséré et cancer du patient mis à jour'
+          });
+      })
+      .catch(function (err) {
+        return next(err);
+      });
+  }
 
   module.exports = {
     getTraitementById:getTraitementById,
-    getTraitementsByType:getTraitementsByType
+    getTraitementsByType:getTraitementsByType,
+    createPatient:createPatient,
+    createFormulaire:createFormulaire
   };
   
