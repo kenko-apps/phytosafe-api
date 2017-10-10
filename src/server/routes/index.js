@@ -2,9 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const indexController = require('../controllers/index');
-
 const queries = require('../db/queries');
-
 
 router.get('/', function (req, res, next) {
   const renderObject = {};
@@ -17,7 +15,6 @@ router.get('/', function (req, res, next) {
     }
   });
 });
-
 router.get('/api/traitement/:id', queries.getTraitementById);
 router.get('/api/traitements/:type', queries.getTraitementsByType);
 router.get('/api/traitements/', queries.getTraitementsByType);
