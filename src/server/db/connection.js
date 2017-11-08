@@ -3,8 +3,10 @@ const pgp = require('pg-promise')(options);
 
 // database connection details
 const cn = {
-  host: 'localhost', // 'localhost' is the default
+  host: '127.0.0.1', // 'localhost' is the default
   port: 5432, // 5432 is the default
+  password:'xxxxxx',
+  user:'postgres',
   password:'xxxxxx'
 };
 

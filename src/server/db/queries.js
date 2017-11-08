@@ -22,16 +22,16 @@ function getTraitementsByType(req, res, next) {
   console.log('getTraitementsByType');
   var request;
   if (req.params.type === undefined) {
-    request = db.any('SELECT * FROM traitement');
+    request = db.many('SELECT * FROM traitement');
   } else {
-    request = db.any('SELECT * FROM traitement WHERE type_traitement_id = $1', req.params.type);
+    request = db.many('SELECT * FROM traitement WHERE type_traitement_id = $1', req.params.type);
   }
   request.then(function (data) {
     res.status(200)
     .json({
       status: 'success',
       data: data,
-      message: 'Traitements trouvées'
+      message: 'Traitements trouvés'
     });
   })
   .catch(function (err) {
@@ -57,7 +57,7 @@ function createPatient(req, res, next) {
 }
 
 function createFormulaire(req, res, next) {
-  //chaine de test : curl --data 'oncologue_referent=Docteur%20Gougiss&patient_id=2&cancer_id=UTERU' http://127.0.0.1:3000/api/newformulaire
+  //chaine de test : curl --data "oncologue_referent=Docteur%20Gougis&patient_id=1&cancer_id=SARCO" http://127.0.0.1:3000/api/v1/newformulaire
   console.log('createFormulaire');
   //oncologue_referent et patient_id peuvent être undéfinis, les autres champs sont obligatoires
   if (req.body.oncologue_referent === undefined) {

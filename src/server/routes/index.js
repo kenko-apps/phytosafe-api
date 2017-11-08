@@ -15,10 +15,10 @@ router.get('/', function (req, res, next) {
     }
   });
 });
-router.get('/api/traitement/:id', queries.getTraitementById);
-router.get('/api/traitements/:type', queries.getTraitementsByType);
-router.get('/api/traitements/', queries.getTraitementsByType);
-router.get('/api/newpatient/', queries.createPatient);
-router.post('/api/newformulaire/', queries.createFormulaire);
+router.get('/api/v1/traitement/:id', queries.getTraitementById);
+router.get('/api/v1/traitements/:type', queries.getTraitementsByType);
+router.get('/api/v1/traitements/', queries.getTraitementsByType);
+router.get('/api/v1/newpatient/', queries.createPatient);
+router.post('/api/v1/newformulaire/', queries.createFormulaire);
 
 module.exports = router;
