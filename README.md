@@ -15,15 +15,15 @@ Ce répertoire Github contient le code source de la partie back-end de l'applica
 
 PhytoSafe-api utilise plusieurs outils. Ce chapitre décrit les outils utilisés, ainsi que la manière dont PhytoSafe-api a été initialisé. Cette initialisation n'a pas vocation à être reproduite, le code étant déjà écrit. La manière d'utiliser cette application est décrite dans le [chapitre suivant](#utilisation).
 
-    1. **Base de données : PostgreSQL**
+### Base de données : PostgreSQL
 
-Le système de gestion de base de données utilisée par PhytoSafe-api est [PostgreSQL](https://www.postgresql.org/), système libre et open source. L'installation locale ou sur un serveur de la base de données est décrite dans le répertoire [resources/database](../resources/database).
+Le système de gestion de base de données utilisée par PhytoSafe-api est [PostgreSQL](https://www.postgresql.org/), système libre et open source. L'installation locale ou sur un serveur de la base de données est décrite dans le répertoire [resources/database](resources/database).
 
-    2. **Langage serveur : Node.js**
+### Langage serveur : Node.js
 
 Le langage utilisé côté serveur est JavaScript, grâce à la plateforme logicielle libre et évènementielle Node.js. L'installation locale de Node.js se fait par le téléchargement du programme d'installation directement sur le [site](https://nodejs.org/en/download/).
 
-    3. **Framework : Express**
+### Framework : Express
 
 PhytoSafe-api utilise l'infrastructure d'applications Web Node.js [Express](http://expressjs.com/), qui permet la création d'une API robuste grâce aux utilitaires HTTP et aux middlewares mis à disposition.
 PhytoSafe-api a été créé à partir d'un modèle créé par [Michael Herman](http://mherman.org/), [galvanize-express](https://www.npmjs.com/package/generator-galvanize-express). La configuration de ce modèle est réalisée par l'outil de gestion de modèles [yeoman](http://yeoman.io/). Pour installer yeoman, il faut, une fois node.js installé, lancer la commande :
@@ -74,26 +74,28 @@ La connexion au serveur depuis un navigateur web est alors disponible à l'adres
 
 ## <a name="fonctionnement"></a>Fonctionnement
 
-En développement, l'ensemble du code nécessaire au développement se trouve dans le dossier [src](../src).
+En développement, l'ensemble du code nécessaire au développement se trouve dans le dossier [src](src).
     
-    1. **Les différentes routes**
-Le fichier [route-config.js](../src/server/config/route-config.js) définit les deux routes du projet :
+### Les différentes routes
+Le fichier [route-config.js](src/server/config/route-config.js) définit les deux routes du projet :
 
-* *la page principale de l'API, [index.js](../src/server/routes/index.js)*
-Cette page présente l'API et est accessible depuis le nom de domaine principal de l'API. Elle affiche une page web dont le code html est dans le dossier [views](../src/server/views).
+* *la page principale de l'API, [index.js](src/server/routes/index.js)*
 
-* *les requêtes vers la base de données, [formulaire.js](../src/server/routes/formulaire.js)*
-Les requêtes sont définies dans le fichier [queriesForm.js](../src/server/db/queriesForm.js) et détaillées [ci-dessous](#requetesHTTP).
+Cette page présente l'API et est accessible depuis le nom de domaine principal de l'API. Elle affiche une page web dont le code html est dans le dossier [views](src/server/views).
 
-    2. **La connexion à la base de données**
-Le fichier [connection.js](../src/server/db/connection.js) gère la connection à la base de données PostgreSQL. La connexion à la base de données se fait par l'intermédiaire de [pg-promise](). Il nécessite l'hébergeur, le port, le nom de la base, l'utilisateur et le mot de passe. Ces éléments ne doivent pas être révélés sur GitHub. 
+* *les requêtes vers la base de données, [formulaire.js](src/server/routes/formulaire.js)*
+
+Les requêtes sont définies dans le fichier [queriesForm.js](src/server/db/queriesForm.js) et détaillées [ci-dessous](#requetesHTTP).
+
+### La connexion à la base de données
+Le fichier [connection.js](src/server/db/connection.js) gère la connection à la base de données PostgreSQL. La connexion à la base de données se fait par l'intermédiaire de [pg-promise](). Il nécessite l'hébergeur, le port, le nom de la base, l'utilisateur et le mot de passe. Ces éléments ne doivent pas être révélés sur GitHub. 
 En développement, la base de données à renseigner doit être locale, afin que les requêtes testées ne viennent pas supprimer ou modifier la base de données primaire. Plus d'informations sont données dans le répertoire [resources/database](../resources/database).
 
-    3. <a name="requeteHTTP"></a>**Les requêtes HTTP**
-Les requêtes HTTP sont écrites dans le fichier [queriesForm.js](../src/server/db/queriesForm.js). Chaque requête doit tester les données d'entrée, et renvoyer une erreur si ces données ne correspondent pas au format ou à la valeur attendus. La syntaxe utilisée pour écrire les requêtes avec pg-promise peut être trouvée en suivant ce [lien](https://vitaly-t.github.io/pg-promise/).
+###<a name="requeteHTTP"></a> Les requêtes HTTP
+Les requêtes HTTP sont écrites dans le fichier [queriesForm.js](src/server/db/queriesForm.js). Chaque requête doit tester les données d'entrée, et renvoyer une erreur si ces données ne correspondent pas au format ou à la valeur attendus. La syntaxe utilisée pour écrire les requêtes avec pg-promise peut être trouvée en suivant ce [lien](https://vitaly-t.github.io/pg-promise/).
 
-    4. **Les tests**
-Les tests peuvent être réalisés grâce à [Mocha](https://mochajs.org) et [Chai](https://chaijs.org/api). Ils peuvent porter sur le fonctionnement des reqêtes de l'API et seront écrits dans le dossier [test/integration](../test/integration) ou sur le fonctionnement d'un contrôleur qui a à sa charge une opération bien définie et et seront alors écrits dans le dossier [test/unit](../test/unit). Les tests sont lancés avec la commande :
+### Les tests
+Les tests peuvent être réalisés grâce à [Mocha](https://mochajs.org) et [Chai](https://chaijs.org/api). Ils peuvent porter sur le fonctionnement des reqêtes de l'API et seront écrits dans le dossier [test/integration](test/integration) ou sur le fonctionnement d'un contrôleur qui a à sa charge une opération bien définie et et seront alors écrits dans le dossier [test/unit](test/unit). Les tests sont lancés avec la commande :
 ```bash
 mocha
 ```
