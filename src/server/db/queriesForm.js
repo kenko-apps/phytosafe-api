@@ -1,11 +1,22 @@
 const db = require('./connection');
+const pgp = require('pg-promise')({
+  capSQL: true // if you want all generated SQL capitalized
+});
+const aideController = require('../controllers/aideBackEnd');
 
 function createForm(req, res, next) {
-  //chaine de test : curl --data "dateForm=20171212" http://127.0.0.1:3000/api/v1/newform/
+  //chaine de test : curl --data "dateForm=20171212&oncoForm=Gougis" http://127.0.0.1:3000/api/v1/newform/
   console.log('Creating form...');
-  console.log(req.body);
-  db.one('INSERT INTO formulaire(datetime_creation)' +
-  'VALUES(to_timestamp(${dateForm})) RETURNING id', req.body)
+  const query = pgp.helpers.concat(aideController.traitementPrepare(req.body));
+  db.task(function(t) {
+    return t.one(pgp.helpers.insert(aideController.formulaireJoin(req.body),null,'formulaire') + 'RETURNING id')
+    .then(function(data) {
+      if (query !== '') {
+        t.none(query);
+      }
+      return data ;
+    });
+  })
   .then(function (data) {
     res.status(200)
     .json({
@@ -21,11 +32,27 @@ function createForm(req, res, next) {
 
 function updateForm(req, res, next) {
   //chaine de test : curl -X PATCH --data "organeForm=sein&diagnosticForm=2017-12-12&etatForm=tumeurlocale&radio=oui&date_naissanceForm=1977-12-12&oncoForm=Gougis&idForm=17" http://127.0.0.1:3000/api/v1/updateform/
-  //chaine de test : curl -X PATCH --data "oncoForm=Gougis&idForm=17" http://127.0.0.1:3000/api/v1/updateform/
+  //chaine de test : curl -X PATCH --data "oncoForm=Gougis&idForm=83" http://127.0.0.1:3000/api/v1/updateform/
   console.log('Updating form...');
-  console.log(req.body);
-  db.none('UPDATE formulaire SET cancer_id=$organeForm, date_diagnostic=$diagnosticForm, stade_maladie=$etatForm, radio=$radioForm, date_naissance=$date_naissanceForm, oncologue_referent=$oncoForm WHERE id=$idForm', req.body)
-  .then(function () {
+  const query = pgp.helpers.concat(aideController.traitementPrepare(req.body));
+  var request;
+  if (!(query === '' || Object.keys(aideController.formulaireJoin(req.body)).length === 0)) {
+    request = db.tx('transaction updateForm', function(t) {
+      return t.batch([
+        // premier requête
+        t.none(query),
+        //deuxième requête
+        t.none(pgp.helpers.update(aideController.formulaireJoin(req.body),null,'formulaire') + 'WHERE id=' + req.body.idForm)
+      ]);
+    });
+  } else {
+    if (query === '') {
+      request = db.none(pgp.helpers.update(aideController.formulaireJoin(req.body),null,'formulaire') + 'WHERE id=' + req.body.idForm);
+    } else {
+      request = db.none(query);
+    }
+  }
+  request.then(function () {
     res.status(200)
     .json({
       status: 'success',
