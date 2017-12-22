@@ -1,3 +1,6 @@
+/*jshint loopfunc: true */
+const diacritics = require('./diacritics');
+
 function formulaireJoin(body) {
   var dataTable = {};
   for (var propertyName in body) {
@@ -43,13 +46,17 @@ function formulaireJoin(body) {
   return dataTable;
 }
 
-function traitementPrepare(body) {
+function traitementUpdate(body) {
   var queryTable = [];
+  class TraitementClass {
+    constructor(formulaire_id, traitement_id, traitement_date) {
+      this.formulaire_id = formulaire_id;
+      this.traitement_id = traitement_id;
+      this.traitement_date = traitement_date;
+    }
+  }
   if (!(body.traitementForm === undefined || body.traitementForm === 0)) {
-    queryTable.push('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id) SELECT ' +
-    body.idForm + ', ' + body.traitementForm + ' WHERE NOT EXISTS' +
-    '(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = ' + body.idForm +
-    ' AND traitement_id = ' + body.traitementForm + ')');
+    queryTable.push(new TraitementClass(body.idForm, body.traitementForm, body.date_traitementForm));
   }
   var i = 1;
   var i_nom = 'phytonom_' + i.toString() + '_Form';
@@ -58,11 +65,7 @@ function traitementPrepare(body) {
   var checkProperty = body.hasOwnProperty(i_nom);
   while (checkProperty) {
     if (body[i_id] !== 0) {
-      // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le traitement est déjà ajouté dans le formulaire
-      queryTable.push('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id, date_prise) SELECT ' +
-      body.idForm + ', ' + body[i_id] +  ', to_timestamp(' + body[i_date] + ') WHERE NOT EXISTS' +
-      '(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = ' + body.idForm +
-      ' AND traitement_id = ' + body[i_id] + ')');
+      queryTable.push(new TraitementClass(body.idForm, body[i_id], body[i_date]));
     }
     i++;
     i_nom = 'phytonom_' + i.toString() + '_Form';
@@ -73,7 +76,59 @@ function traitementPrepare(body) {
   return queryTable;
 }
 
+function validateEntry(body) {
+  var queryTable = [];
+  class EntryClass {
+    constructor(alias, table, nom) {
+      this.alias = alias;
+      this.table = table;
+      this.nom = nom;
+    }
+  }
+  if (body.organeForm === 'AUCUN') {
+    diacritics.remplace(body.nom_organeForm).split(' ').forEach(function(element) {
+      queryTable.push(new EntryClass('organeForm', 'cancer', element));
+    });
+    queryTable.push(new EntryClass('organeForm', 'cancer', diacritics.remplace(body.nom_organeForm)));
+  }
+  if (body.traitementForm === 0) {
+    diacritics.remplace(body.nom_traitementForm).split(' ').forEach(function(element) {
+      queryTable.push(new EntryClass('traitementForm', 'traitement', element));
+    });
+    queryTable.push(new EntryClass('traitementForm', 'traitement', diacritics.remplace(body.nom_traitementForm)));
+  }
+  var i = 1;
+  var i_nom = 'phytonom_' + i.toString() + '_Form';
+  var i_date = 'phytodate_' + i.toString() + '_Form';
+  var i_id = 'phytoid_' + i.toString() + '_Form';
+  while (body.hasOwnProperty(i_nom)) {
+    if (body[i_id] === 0) {
+      diacritics.remplace(body[i_nom]).split(' ').forEach(function(element) {
+        queryTable.push(new EntryClass(i_id, 'traitement', element));
+      });
+      queryTable.push(new EntryClass(i_id, 'traitement', diacritics.remplace(body[i_nom])));
+    }
+    i++;
+    i_nom = 'phytonom_' + i.toString() + '_Form';
+    i_date = 'phytodate_' + i.toString() + '_Form';
+    i_id = 'phytoid_' + i.toString() + '_Form';
+  }
+  return queryTable;
+}
+
+function bodyUpdate(body,data) {
+  data.forEach(function(element) {
+    var propertyName;
+    if (element !== null) {
+      propertyName = Object.getOwnPropertyNames(element)[0];
+      body[propertyName] = element[propertyName];
+    }
+  });
+}
+
 module.exports = {
   formulaireJoin,
-  traitementPrepare
+  traitementUpdate,
+  validateEntry,
+  bodyUpdate
 };
