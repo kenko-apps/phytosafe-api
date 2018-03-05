@@ -116,6 +116,44 @@ function validateEntry(body) {
   return queryTable;
 }
 
+function validateInformation(data, test) {
+  var queryTable = [];
+  class InfoClass {
+    constructor(alias, id) {
+      this.alias = alias;
+      this.id = id;
+    }
+  }
+  if (test) {
+    queryTable.push(new InfoClass('cancer_id', data[0].cancer_id));
+  }
+  data[1].forEach(element => {
+    queryTable.push(new InfoClass('traitement_id', element.traitement_id));
+  });
+  return queryTable;
+}
+
+function validateEffet(data, dataEffet) {
+  var queryTable = [];
+  var mergedTable = [].concat.apply([], dataEffet);
+  let i = 1;
+  class EffetClass {
+    constructor(effet1, effet2, cancer) {
+      this.effet1 = effet1;
+      this.effet2 = effet2;
+      this.cancer = cancer;
+    }
+  }
+  mergedTable.forEach(element => {
+    queryTable.push(new EffetClass(element.effet_id, null, data[0].cancer_id));
+    while (i < mergedTable.length) {
+      queryTable.push(new EffetClass(element.effet_id, mergedTable[i].effet_id, null));
+      i++;
+    }
+  });
+  return queryTable;
+}
+
 function bodyUpdate(body,data) {
   data.forEach(function(element) {
     var propertyName;
@@ -130,5 +168,7 @@ module.exports = {
   formulaireJoin,
   traitementUpdate,
   validateEntry,
+  validateInformation,
+  validateEffet,
   bodyUpdate
 };
