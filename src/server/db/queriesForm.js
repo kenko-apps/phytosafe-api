@@ -6,7 +6,7 @@ const aideController = require('../controllers/aideBackEnd');
 const diacritics = require('../controllers/diacritics');
 
 function createForm(req, res, next) {
-  //chaine de test : curl --data "dateForm=20171212&oncoForm=Gougis" http://127.0.0.1:3000/api/v1/newform/
+  //chaine de test : curl --data "dateForm=20171212&radioForm=oui" http://127.0.0.1:3000/api/v1/newform/
   console.log('Creating form...');
   var queryTable = aideController.validateEntry(req.body);
   var request = db.task(t => {
@@ -46,8 +46,7 @@ function createForm(req, res, next) {
 }
 
 function updateForm(req, res, next) {
-  //chaine de test : curl -X PATCH --data "organeForm=sein&diagnosticForm=2017-12-12&etatForm=tumeurlocale&radio=oui&date_naissanceForm=1977-12-12&oncoForm=Gougis&idForm=17" http://127.0.0.1:3000/api/v1/updateform/
-  //chaine de test : curl -X PATCH --data "oncoForm=Gougis&idForm=83" http://127.0.0.1:3000/api/v1/updateform/
+  //chaine de test : curl -X PATCH --data "organeForm=sein&etatForm=tumeurlocale&radioForm=oui&date_naissanceForm=1977-12-12&idForm=17" http://127.0.0.1:3000/api/v1/updateform/
   console.log('Updating form...');
   var queryTable = aideController.validateEntry(req.body);
   var request = db.task(t => {
