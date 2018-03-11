@@ -7,7 +7,7 @@ const diacritics = require('../controllers/diacritics');
 
 function createForm(req, res, next) {
   //chaine de test : curl --data "dateForm=20171212&radioForm=oui" http://127.0.0.1:3000/api/v1/newform/
-  console.log('Creating form...');
+  //console.log('Creating form...');
   var queryTable = aideController.validateEntry(req.body);
   var request = db.task(t => {
     return t.one(pgp.helpers.insert(aideController.formulaireJoin(req.body),null,'formulaire') + 'RETURNING id').then(d => {
@@ -47,7 +47,7 @@ function createForm(req, res, next) {
 
 function updateForm(req, res, next) {
   //chaine de test : curl -X PATCH --data "organeForm=sein&etatForm=tumeurlocale&radioForm=oui&date_naissanceForm=1977-12-12&idForm=17" http://127.0.0.1:3000/api/v1/updateform/
-  console.log('Updating form...');
+  //console.log('Updating form...');
   var queryTable = aideController.validateEntry(req.body);
   var request = db.task(t => {
     if (queryTable.length > 0) {
@@ -89,7 +89,7 @@ function updateForm(req, res, next) {
 }
 
 function getTraitementsByType(req, res, next) {
-  console.log('Getting treatments...');
+  //console.log('Getting treatments...');
   var request;
   if (req.params.type === undefined) {
     request = db.many('SELECT * FROM traitement');
@@ -110,7 +110,7 @@ function getTraitementsByType(req, res, next) {
 }
 
 function getCancers(req, res, next) {
-  console.log('Getting cancers...');
+  //console.log('Getting cancers...');
   db.many('SELECT * FROM cancer')
   .then(function (data) {
     res.status(200)
