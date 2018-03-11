@@ -10,6 +10,8 @@
   const flash = require('connect-flash');
   const morgan = require('morgan');
   const nunjucks = require('nunjucks');
+  var compression = require('compression');
+  var helmet = require('helmet');
 
   // *** view folders *** //
   const viewFolders = [
@@ -42,6 +44,8 @@
     //   saveUninitialized: true
     // }));
     app.use(flash());
+    app.use(compression());
+    app.use(helmet());
     app.use(express.static(path.join(__dirname, '..', '..', 'client')));
 
   };

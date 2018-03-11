@@ -45,6 +45,24 @@ function createForm(req, res, next) {
   });
 }
 
+function removeForm(req, res, next) {
+  //console.log('Removing form...');
+  var request;
+  if (req.params.id !== undefined) {
+    request = db.oneOrNone('DELETE FROM formulaire WHERE id = $1', req.params.id);
+  }
+  request.then(function () {
+    res.status(200)
+    .json({
+      status: 'success',
+      message: 'Formulaire supprimé'
+    });
+  })
+  .catch(function (err) {
+    return next(err);
+  });
+}
+
 function updateForm(req, res, next) {
   //chaine de test : curl -X PATCH --data "organeForm=sein&etatForm=tumeurlocale&radioForm=oui&date_naissanceForm=1977-12-12&idForm=17" http://127.0.0.1:3000/api/v1/updateform/
   //console.log('Updating form...');
@@ -128,6 +146,7 @@ function getCancers(req, res, next) {
 module.exports = {
   createForm:createForm,
   updateForm:updateForm,
+  removeForm:removeForm,
   getTraitementsByType:getTraitementsByType,
   getCancers:getCancers
 };

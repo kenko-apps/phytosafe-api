@@ -3,5 +3,5 @@ node_modules/
 npm-debug.log
 *.env
 
-resources/database/phytosafe.mwb.bak
+resources/
 install_serveur.bash
