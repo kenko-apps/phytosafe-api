@@ -11,11 +11,11 @@ function formulaireJoin(body) {
       case 'organeForm':
         dataTable.cancer_id = body.organeForm;
         break;
+      case 'nom_organeForm':
+        dataTable.cancer_nom = body.nom_organeForm;
+        break;
       case 'dateForm':
         dataTable.datetime_creation = body.dateForm;
-        break;
-      case 'diagnosticForm':
-        dataTable.date_diagnostic = body.diagnosticForm;
         break;
       case 'etatForm':
         dataTable.stade_maladie = body.etatForm;
@@ -26,11 +26,14 @@ function formulaireJoin(body) {
       case 'date_naissanceForm':
         dataTable.date_naissance = body.date_naissanceForm;
         break;
-      case 'therapiesForm' :
-        dataTable.therapies = body.therapiesForm;
-        break;
       case 'phytoForm':
         dataTable.phyto = body.phytoForm;
+        break;
+      case 'boissonForm':
+        dataTable.boisson_phyto = body.boissonForm;
+        break;
+      case 'vitamineForm':
+        dataTable.complement_phyto = body.vitamineForm;
         break;
       case 'homeoForm' :
         dataTable.homeo = body.homeoForm;
@@ -41,6 +44,16 @@ function formulaireJoin(body) {
       case 'autresForm' :
         dataTable.autres = body.autresForm;
         break;
+      case 'tabacForm' :
+        if (body.tabacForm === 'oui') {
+          dataTable.tabac = true;
+        } else {
+          dataTable.tabac = false;
+        }
+        break;
+      case 'frequenceForm' :
+        dataTable.frequence_tabac = body.frequenceForm;
+        break;
     }
   }
   return dataTable;
@@ -49,29 +62,36 @@ function formulaireJoin(body) {
 function traitementUpdate(body) {
   var queryTable = [];
   class TraitementClass {
-    constructor(formulaire_id, traitement_id, traitement_date) {
+    constructor(formulaire_id, traitement_id) {
       this.formulaire_id = formulaire_id;
       this.traitement_id = traitement_id;
-      this.traitement_date = traitement_date;
     }
   }
-  if (!(body.traitementForm === undefined || body.traitementForm === 0)) {
-    queryTable.push(new TraitementClass(body.idForm, body.traitementForm, body.date_traitementForm));
+  var j = 1;
+  var j_nom = 'traitementnom_' + j.toString() + '_Form';
+  var j_id = 'traitementid_' + j.toString() + '_Form';
+  var checkPropertyJ = body.hasOwnProperty(j_nom);
+  while (checkPropertyJ) {
+    if (body[j_id] !== 0) {
+      queryTable.push(new TraitementClass(body.idForm, body[j_id]));
+    }
+    j++;
+    j_nom = 'traitementnom_' + j.toString() + '_Form';
+    j_id = 'traitementid_' + j.toString() + '_Form';
+    checkPropertyJ = body.hasOwnProperty(j_nom);
   }
   var i = 1;
   var i_nom = 'phytonom_' + i.toString() + '_Form';
-  var i_date = 'phytodate_' + i.toString() + '_Form';
   var i_id = 'phytoid_' + i.toString() + '_Form';
-  var checkProperty = body.hasOwnProperty(i_nom);
-  while (checkProperty) {
+  var checkPropertyI = body.hasOwnProperty(i_nom);
+  while (checkPropertyI) {
     if (body[i_id] !== 0) {
-      queryTable.push(new TraitementClass(body.idForm, body[i_id], body[i_date]));
+      queryTable.push(new TraitementClass(body.idForm, body[i_id]));
     }
     i++;
     i_nom = 'phytonom_' + i.toString() + '_Form';
-    i_date = 'phytodate_' + i.toString() + '_Form';
     i_id = 'phytoid_' + i.toString() + '_Form';
-    checkProperty = body.hasOwnProperty(i_nom);
+    checkPropertyI = body.hasOwnProperty(i_nom);
   }
   return queryTable;
 }
@@ -91,15 +111,22 @@ function validateEntry(body) {
     });
     queryTable.push(new EntryClass('organeForm', 'cancer', diacritics.remplace(body.nom_organeForm)));
   }
-  if (body.traitementForm === 0) {
-    diacritics.remplace(body.nom_traitementForm).split(' ').forEach(function(element) {
-      queryTable.push(new EntryClass('traitementForm', 'traitement', element));
-    });
-    queryTable.push(new EntryClass('traitementForm', 'traitement', diacritics.remplace(body.nom_traitementForm)));
+  var j = 1;
+  var j_nom = 'traitementnom_' + j.toString() + '_Form';
+  var j_id = 'traitementid_' + j.toString() + '_Form';
+  while (body.hasOwnProperty(j_nom)) {
+    if (body[j_id] === 0) {
+      diacritics.remplace(body[j_nom]).split(' ').forEach(function(element) {
+        queryTable.push(new EntryClass(j_id, 'traitement', element));
+      });
+      queryTable.push(new EntryClass(j_id, 'traitement', diacritics.remplace(body[j_nom])));
+    }
+    j++;
+    j_nom = 'traitementnom_' + j.toString() + '_Form';
+    j_id = 'traitementid_' + j.toString() + '_Form';
   }
   var i = 1;
   var i_nom = 'phytonom_' + i.toString() + '_Form';
-  var i_date = 'phytodate_' + i.toString() + '_Form';
   var i_id = 'phytoid_' + i.toString() + '_Form';
   while (body.hasOwnProperty(i_nom)) {
     if (body[i_id] === 0) {
@@ -110,7 +137,6 @@ function validateEntry(body) {
     }
     i++;
     i_nom = 'phytonom_' + i.toString() + '_Form';
-    i_date = 'phytodate_' + i.toString() + '_Form';
     i_id = 'phytoid_' + i.toString() + '_Form';
   }
   return queryTable;

@@ -9,23 +9,27 @@ function createForm(req, res, next) {
   //chaine de test : curl --data "dateForm=20171212&oncoForm=Gougis" http://127.0.0.1:3000/api/v1/newform/
   console.log('Creating form...');
   var queryTable = aideController.validateEntry(req.body);
-  console.log(queryTable);
   var request = db.task(t => {
     return t.one(pgp.helpers.insert(aideController.formulaireJoin(req.body),null,'formulaire') + 'RETURNING id').then(d => {
       req.body.idForm = d;
-      return t.batch(queryTable.map(q => {
-        return t.oneOrNone('SELECT id AS $1:name FROM $2:name WHERE nom_simple = $3', [q.alias, q.table, q.nom]);
-      })).then(data => {
-        aideController.bodyUpdate(req.body,data);
-        var queryTableBis = aideController.traitementUpdate(req.body);
-        queryTableBis = queryTableBis.map(q => {
-          // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le traitement est déjà ajouté dans le formulaire
-          t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id, date_prise) SELECT $1, $2, $3 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2)', [q.formulaire_id, q.traitement_id, q.traitement_date]);
+      if (queryTable.length > 0) {
+        return t.batch(queryTable.map(q => {
+          return t.oneOrNone('SELECT id AS $1:name FROM $2:name WHERE nom_simple = $3', [q.alias, q.table, q.nom]);
+        })).then(data => {
+          aideController.bodyUpdate(req.body,data);
+          var queryTableBis = aideController.traitementUpdate(req.body);
+          queryTableBis = queryTableBis.map(q => {
+            // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le traitement est déjà ajouté dans le formulaire
+            t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id) SELECT $1, $2 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2)', [q.formulaire_id, q.traitement_id]);
+          });
+          queryTableBis.push(t.none(pgp.helpers.update(aideController.formulaireJoin(req.body),null,'formulaire') + ' WHERE id =' + req.body.idForm));
+          return t.batch(queryTableBis).then(() => {
+            return req.body.idForm;
+          });
         });
-        return t.batch(queryTableBis).then(() => {
-          return req.body.idForm;
-        });
-      });
+      } else {
+        return req.body.idForm;
+      }
     });
   });
   request.then(function (data) {
@@ -46,20 +50,32 @@ function updateForm(req, res, next) {
   //chaine de test : curl -X PATCH --data "oncoForm=Gougis&idForm=83" http://127.0.0.1:3000/api/v1/updateform/
   console.log('Updating form...');
   var queryTable = aideController.validateEntry(req.body);
-  console.log(queryTable);
   var request = db.task(t => {
-    return t.batch(queryTable.map(q => {
-      return t.oneOrNone('SELECT id AS $1:name FROM $2:name WHERE nom_simple = $3', [q.alias, q.table, q.nom]);
-    })).then(data => {
-      aideController.bodyUpdate(req.body,data);
+    if (queryTable.length > 0) {
+      return t.batch(queryTable.map(q => {
+        return t.oneOrNone('SELECT id AS $1:name FROM $2:name WHERE nom_simple = $3', [q.alias, q.table, q.nom]);
+      })).then(data => {
+        aideController.bodyUpdate(req.body,data);
+        var queryTableBis = aideController.traitementUpdate(req.body);
+        queryTableBis = queryTableBis.map(q => {
+          // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le traitement est déjà ajouté dans le formulaire
+          t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id) SELECT $1, $2 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2)', [q.formulaire_id, q.traitement_id]);
+        });
+        queryTableBis.push(t.none(pgp.helpers.update(aideController.formulaireJoin(req.body),null,'formulaire') + ' WHERE id =' + req.body.idForm));
+        return t.batch(queryTableBis);
+      });
+    } else {
       var queryTableBis = aideController.traitementUpdate(req.body);
+      var queryTableTer = aideController.formulaireJoin(req.body);
       queryTableBis = queryTableBis.map(q => {
         // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le traitement est déjà ajouté dans le formulaire
-        t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id, date_prise) SELECT $1, $2, $3 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2)', [q.formulaire_id, q.traitement_id, q.traitement_date]);
+        t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id) SELECT $1, $2 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2)', [q.formulaire_id, q.traitement_id]);
       });
-      queryTableBis.push(t.none(pgp.helpers.update(aideController.formulaireJoin(req.body),null,'formulaire') + 'WHERE id=' + req.body.idForm));
+      if (!(Object.keys(queryTableTer).length === 0 && queryTableTer.constructor === Object)) {
+        queryTableBis.push(t.none(pgp.helpers.update(queryTableTer,null,'formulaire') + ' WHERE id =' + req.body.idForm));
+      }
       return t.batch(queryTableBis);
-    });
+    }
   });
   request.then(function () {
     res.status(200)
@@ -102,7 +118,7 @@ function getCancers(req, res, next) {
     .json({
       status: 'success',
       data: data,
-      message: 'Traitements trouvés'
+      message: 'Cancers trouvés'
     });
   })
   .catch(function (err) {
