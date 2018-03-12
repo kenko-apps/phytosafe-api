@@ -6,7 +6,7 @@ const cn = {
   host: '127.0.0.1', // 'localhost' is the default
   port: 5432, // 5432 is the default
   password:'xxxxxx',
-  user:'postgres',
+  password:'xxxxxx',
   password:'xxxxxx'
 };
 
