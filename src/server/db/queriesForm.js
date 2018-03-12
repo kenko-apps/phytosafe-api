@@ -49,8 +49,11 @@ function removeForm(req, res, next) {
   //console.log('Removing form...');
   var request;
   if (req.params.id !== undefined) {
-    request = db.oneOrNone('DELETE FROM formulaire WHERE id = $1', req.params.id);
-  }
+    request = db.task(t => {
+      return t.any('DELETE FROM formulaire_has_traitement WHERE formulaire_id = $1', req.params.id).then( () => {
+        return t.any('DELETE FROM formulaire WHERE id = $1', req.params.id);
+      });
+  });
   request.then(function () {
     res.status(200)
     .json({
