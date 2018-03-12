@@ -23,6 +23,9 @@ function formulaireJoin(body) {
       case 'radioForm':
         dataTable.radio = body.radioForm;
         break;
+      case 'chirurgieForm':
+        dataTable.chirurgie = body.chirurgieForm;
+        break;
       case 'date_naissanceForm':
         dataTable.date_naissance = body.date_naissanceForm;
         break;
