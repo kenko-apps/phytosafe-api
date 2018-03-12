@@ -50,10 +50,11 @@ function removeForm(req, res, next) {
   var request;
   if (req.params.id !== undefined) {
     request = db.task(t => {
-      return t.none('DELETE FROM formulaire_has_traitement WHERE formulaire_id = $1', req.params.id).then( () =>{
+      return t.none('DELETE FROM formulaire_has_traitement WHERE formulaire_id = $1', req.params.id).then(() => {
         return t.none('DELETE FROM formulaire WHERE id = $1', req.params.id);
       });
-  });
+    });
+  }
   request.then(function () {
     res.status(200)
     .json({
