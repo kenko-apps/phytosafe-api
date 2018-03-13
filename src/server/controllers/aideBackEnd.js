@@ -47,6 +47,9 @@ function formulaireJoin(body) {
       case 'autresForm' :
         dataTable.autres = body.autresForm;
         break;
+      case 'sexeForm' :
+        dataTable.sexe = body.sexeForm;
+        break;
       case 'tabacForm' :
         if (body.tabacForm === 'oui') {
           dataTable.tabac = true;
