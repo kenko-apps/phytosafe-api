@@ -60,6 +60,12 @@ function formulaireJoin(body) {
       case 'frequenceForm' :
         dataTable.frequence_tabac = body.frequenceForm;
         break;
+      case 'latitudeForm' :
+        dataTable.latitude = body.latitudeForm;
+        break;
+      case 'longitudeForm' :
+        dataTable.longitude = body.longitudeForm;
+        break;
     }
   }
   return dataTable;
@@ -68,9 +74,10 @@ function formulaireJoin(body) {
 function traitementUpdate(body) {
   var queryTable = [];
   class TraitementClass {
-    constructor(formulaire_id, traitement_id) {
+    constructor(formulaire_id, traitement_id, traitement_nom) {
       this.formulaire_id = formulaire_id;
       this.traitement_id = traitement_id;
+      this.traitement_nom = traitement_nom;
     }
   }
   var j = 1;
@@ -78,9 +85,7 @@ function traitementUpdate(body) {
   var j_id = 'traitementid_' + j.toString() + '_Form';
   var checkPropertyJ = body.hasOwnProperty(j_nom);
   while (checkPropertyJ) {
-    if (body[j_id] !== 0) {
-      queryTable.push(new TraitementClass(body.idForm, body[j_id]));
-    }
+    queryTable.push(new TraitementClass(body.idForm, body[j_id], body[j_nom]));
     j++;
     j_nom = 'traitementnom_' + j.toString() + '_Form';
     j_id = 'traitementid_' + j.toString() + '_Form';
@@ -91,9 +96,7 @@ function traitementUpdate(body) {
   var i_id = 'phytoid_' + i.toString() + '_Form';
   var checkPropertyI = body.hasOwnProperty(i_nom);
   while (checkPropertyI) {
-    if (body[i_id] !== 0) {
-      queryTable.push(new TraitementClass(body.idForm, body[i_id]));
-    }
+    queryTable.push(new TraitementClass(body.idForm, body[i_id], body[i_nom]));
     i++;
     i_nom = 'phytonom_' + i.toString() + '_Form';
     i_id = 'phytoid_' + i.toString() + '_Form';

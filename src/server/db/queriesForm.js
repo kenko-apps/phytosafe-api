@@ -20,9 +20,9 @@ function createForm(req, res, next) {
           var queryTableBis = aideController.traitementUpdate(req.body);
           queryTableBis = queryTableBis.map(q => {
             // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le traitement est déjà ajouté dans le formulaire
-            t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id) SELECT $1, $2 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2)', [q.formulaire_id, q.traitement_id]);
+            t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id, traitement_nom) SELECT $1, $2, $3 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2  AND traitement_nom = $3)', [q.formulaire_id, q.traitement_id, q.traitement_nom]);
           });
-          queryTableBis.push(t.none(pgp.helpers.update(aideController.formulaireJoin(req.body),null,'formulaire') + ' WHERE id =' + req.body.idForm));
+          queryTableBis.push(t.none(pgp.helpers.update(aideController.formulaireJoin(req.body),null,'formulaire') + ' WHERE id =' + req.body.idForm.id));
           return t.batch(queryTableBis).then(() => {
             return req.body.idForm;
           });
@@ -80,7 +80,7 @@ function updateForm(req, res, next) {
         var queryTableBis = aideController.traitementUpdate(req.body);
         queryTableBis = queryTableBis.map(q => {
           // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le traitement est déjà ajouté dans le formulaire
-          t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id) SELECT $1, $2 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2)', [q.formulaire_id, q.traitement_id]);
+          t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id, traitement_nom) SELECT $1, $2, $3 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2  AND traitement_nom = $3)', [q.formulaire_id, q.traitement_id, q.traitement_nom]);
         });
         queryTableBis.push(t.none(pgp.helpers.update(aideController.formulaireJoin(req.body),null,'formulaire') + ' WHERE id =' + req.body.idForm));
         return t.batch(queryTableBis);
