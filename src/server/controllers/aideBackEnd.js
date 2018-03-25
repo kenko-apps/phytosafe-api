@@ -6,49 +6,79 @@ function formulaireJoin(body) {
   for (var propertyName in body) {
     switch (propertyName){
       case 'oncoForm':
-        dataTable.oncologue_referent = body.oncoForm;
+        if (typeof body.oncoForm === 'string' && /^([0-9a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153\- \'\(\)\.]*)$/.test(body.oncoForm)) {
+          dataTable.oncologue_referent = body.oncoForm;
+        }
         break;
       case 'organeForm':
-        dataTable.cancer_id = body.organeForm;
+        if (typeof body.organeForm === 'string' && /^([A-Z ]{0,5})$/.test(body.organeForm)) {
+          dataTable.cancer_id = body.organeForm;
+        }
         break;
       case 'nom_organeForm':
-        dataTable.cancer_nom = body.nom_organeForm;
+        if (typeof body.nom_organeForm === 'string' && /^([0-9a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153\- \'\(\)]*)$/.test(body.nom_organeForm)) {
+          dataTable.cancer_nom = body.nom_organeForm;
+        }
         break;
       case 'dateForm':
-        dataTable.datetime_creation = body.dateForm;
+        if (typeof body.dateForm === 'string') {
+          dataTable.datetime_creation = body.dateForm;
+        }
         break;
       case 'etatForm':
-        dataTable.stade_maladie = body.etatForm;
+        if (typeof body.etatForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 ]*)$/.test(body.etatForm)) {
+          dataTable.stade_maladie = body.etatForm;
+        }
         break;
       case 'radioForm':
-        dataTable.radio = body.radioForm;
+        if (typeof body.radioForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 ]*)$/.test(body.radioForm)) {
+          dataTable.radio = body.radioForm;
+        }
         break;
       case 'chirurgieForm':
-        dataTable.chirurgie = body.chirurgieForm;
+        if (typeof body.chirurgieForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 ]*)$/.test(body.chirurgieForm)) {
+          dataTable.chirurgie = body.chirurgieForm;
+        }
         break;
       case 'date_naissanceForm':
-        dataTable.date_naissance = body.date_naissanceForm;
+        if (typeof body.date_naissanceForm === 'string' && /^([0-9]{2,3})$/.test(body.date_naissanceForm)) {
+          dataTable.date_naissance = body.date_naissanceForm;
+        }
         break;
       case 'phytoForm':
-        dataTable.phyto = body.phytoForm;
+        if (typeof body.phytoForm === 'boolean') {
+          dataTable.phyto = body.phytoForm;
+        }
         break;
       case 'boissonForm':
-        dataTable.boisson_phyto = body.boissonForm;
+        if (typeof body.boissonForm === 'boolean') {
+          dataTable.boisson_phyto = body.boissonForm;
+        }
         break;
       case 'vitamineForm':
-        dataTable.complement_phyto = body.vitamineForm;
+        if (typeof body.vitamineForm === 'boolean') {
+          dataTable.complement_phyto = body.vitamineForm;
+        }
         break;
       case 'homeoForm' :
-        dataTable.homeo = body.homeoForm;
+        if (typeof body.homeoForm === 'boolean') {
+          dataTable.homeo = body.homeoForm;
+        }
         break;
       case 'aromaForm' :
-        dataTable.aroma = body.aromaForm;
+        if (typeof body.aromaForm === 'boolean') {
+          dataTable.aroma = body.aromaForm;
+        }
         break;
       case 'autresForm' :
-        dataTable.autres = body.autresForm;
+        if (typeof body.autresForm === 'string' && /^([0-9a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153\- \'\(\)]*)$/.test(body.autresForm)) {
+          dataTable.autres = body.autresForm;
+        }
         break;
       case 'sexeForm' :
-        dataTable.sexe = body.sexeForm;
+        if (typeof body.sexeForm === 'string' && (/^(homme)$/i.test(body.sexeForm) || /^(femme)$/i.test(body.sexeForm))) {
+          dataTable.sexe = body.sexeForm;
+        }
         break;
       case 'tabacForm' :
         if (body.tabacForm === 'oui') {
@@ -58,13 +88,19 @@ function formulaireJoin(body) {
         }
         break;
       case 'frequenceForm' :
-        dataTable.frequence_tabac = body.frequenceForm;
+        if (typeof body.frequenceForm === 'string' && /^([0-9\-<>]*)$/.test(body.frequenceForm)) {
+          dataTable.frequence_tabac = body.frequenceForm;
+        }
         break;
       case 'latitudeForm' :
-        dataTable.latitude = body.latitudeForm;
+        if (typeof body.latitudeForm === 'number') {
+          dataTable.latitude = body.latitudeForm;
+        }
         break;
       case 'longitudeForm' :
-        dataTable.longitude = body.longitudeForm;
+        if (typeof body.longitudeForm === 'number') {
+          dataTable.longitude = body.longitudeForm;
+        }
         break;
     }
   }
@@ -101,6 +137,39 @@ function traitementUpdate(body) {
     i_nom = 'phytonom_' + i.toString() + '_Form';
     i_id = 'phytoid_' + i.toString() + '_Form';
     checkPropertyI = body.hasOwnProperty(i_nom);
+  }
+  return queryTable;
+}
+
+function traitementProblem(body) {
+  var queryTable = [];
+  class ProblemClass {
+    constructor(alias, nom) {
+      this.alias = alias;
+      this.nom = nom;
+    }
+  }
+  var j = 1;
+  var j_id = 'traitementid_' + j.toString() + '_Form';
+  var checkPropertyJ = body.hasOwnProperty(j_id);
+  while (checkPropertyJ) {
+    if (body[j_id] === 0) {
+      queryTable.push(new ProblemClass(j_id, 'autres_ttcan'));
+    }
+    j++;
+    j_id = 'traitementid_' + j.toString() + '_Form';
+    checkPropertyJ = body.hasOwnProperty(j_id);
+  }
+  var i = 1;
+  var i_id = 'phytoid_' + i.toString() + '_Form';
+  var checkPropertyI = body.hasOwnProperty(i_id);
+  while (checkPropertyI) {
+    if (body[i_id] === 0) {
+      queryTable.push(new ProblemClass(i_id, 'autres_phyto'));
+    }
+    i++;
+    i_id = 'phytoid_' + i.toString() + '_Form';
+    checkPropertyI = body.hasOwnProperty(i_id);
   }
   return queryTable;
 }
@@ -164,6 +233,7 @@ function bodyUpdate(body,data) {
 module.exports = {
   formulaireJoin,
   traitementUpdate,
+  traitementProblem,
   validateEntry,
   bodyUpdate
 };

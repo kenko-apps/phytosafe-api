@@ -11,21 +11,46 @@ function createForm(req, res, next) {
   var queryTable = aideController.validateEntry(req.body);
   var request = db.task(t => {
     return t.one(pgp.helpers.insert(aideController.formulaireJoin(req.body),null,'formulaire') + 'RETURNING id').then(d => {
-      req.body.idForm = d;
+      req.body.idForm = d.id;
       if (queryTable.length > 0) {
         return t.batch(queryTable.map(q => {
           return t.oneOrNone('SELECT id AS $1:name FROM $2:name WHERE nom_simple = $3', [q.alias, q.table, q.nom]);
         })).then(data => {
           aideController.bodyUpdate(req.body,data);
-          var queryTableBis = aideController.traitementUpdate(req.body);
-          queryTableBis = queryTableBis.map(q => {
-            // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le traitement est déjà ajouté dans le formulaire
-            t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id, traitement_nom) SELECT $1, $2, $3 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2  AND traitement_nom = $3)', [q.formulaire_id, q.traitement_id, q.traitement_nom]);
-          });
-          queryTableBis.push(t.none(pgp.helpers.update(aideController.formulaireJoin(req.body),null,'formulaire') + ' WHERE id =' + req.body.idForm.id));
-          return t.batch(queryTableBis).then(() => {
-            return req.body.idForm;
-          });
+          var queryTableBis = aideController.traitementProblem(req.body);
+          if (queryTableBis.length > 0) {
+            return t.batch(queryTableBis.map(q => {
+              return t.oneOrNone('SELECT id AS $1:name FROM traitement WHERE nom = $2', [q.alias, q.nom]);
+            })).then(databis => {
+              aideController.bodyUpdate(req.body,databis);
+              var queryTableTer = aideController.traitementUpdate(req.body);
+              var queryTableQuatro = aideController.formulaireJoin(req.body);
+              queryTableTer = queryTableTer.map(q => {
+                // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le traitement est déjà ajouté dans le formulaire
+                t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id, traitement_nom) SELECT $1, $2, $3 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2  AND traitement_nom = $3)', [q.formulaire_id, q.traitement_id, q.traitement_nom]);
+              });
+              if (!(Object.keys(queryTableQuatro).length === 0 && queryTableQuatro.constructor === Object)) {
+                queryTableTer.push(t.none(pgp.helpers.update(queryTableQuatro,null,'formulaire') + ' WHERE id =' + req.body.idForm));
+              }
+              return t.batch(queryTableTer).then(() => {
+                return req.body.idForm;
+              });
+            });
+          } else {
+            aideController.bodyUpdate(req.body,data);
+            var queryTableTer = aideController.traitementUpdate(req.body);
+            var queryTableQuatro = aideController.formulaireJoin(req.body);
+            queryTableTer = queryTableTer.map(q => {
+              // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le traitement est déjà ajouté dans le formulaire
+              t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id, traitement_nom) SELECT $1, $2, $3 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2  AND traitement_nom = $3)', [q.formulaire_id, q.traitement_id, q.traitement_nom]);
+            });
+            if (!(Object.keys(queryTableQuatro).length === 0 && queryTableQuatro.constructor === Object)) {
+              queryTableTer.push(t.none(pgp.helpers.update(queryTableQuatro,null,'formulaire') + ' WHERE id =' + req.body.idForm));
+            }
+            return t.batch(queryTableTer).then(() => {
+              return req.body.idForm;
+            });
+          }
         });
       } else {
         return req.body.idForm;
@@ -77,20 +102,43 @@ function updateForm(req, res, next) {
         return t.oneOrNone('SELECT id AS $1:name FROM $2:name WHERE nom_simple = $3', [q.alias, q.table, q.nom]);
       })).then(data => {
         aideController.bodyUpdate(req.body,data);
-        var queryTableBis = aideController.traitementUpdate(req.body);
-        queryTableBis = queryTableBis.map(q => {
-          // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le traitement est déjà ajouté dans le formulaire
-          t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id, traitement_nom) SELECT $1, $2, $3 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2  AND traitement_nom = $3)', [q.formulaire_id, q.traitement_id, q.traitement_nom]);
-        });
-        queryTableBis.push(t.none(pgp.helpers.update(aideController.formulaireJoin(req.body),null,'formulaire') + ' WHERE id =' + req.body.idForm));
-        return t.batch(queryTableBis);
+        var queryTableBis = aideController.traitementProblem(req.body);
+        if (queryTableBis.length > 0) {
+          return t.batch(queryTableBis.map(q => {
+            return t.oneOrNone('SELECT id AS $1:name FROM traitement WHERE nom = $2', [q.alias, q.nom]);
+          })).then(databis => {
+            aideController.bodyUpdate(req.body,databis);
+            var queryTableTer = aideController.traitementUpdate(req.body);
+            var queryTableQuatro = aideController.formulaireJoin(req.body);
+            queryTableTer = queryTableTer.map(q => {
+              // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le traitement est déjà ajouté dans le formulaire
+              t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id, traitement_nom) SELECT $1, $2, $3 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2  AND traitement_nom = $3)', [q.formulaire_id, q.traitement_id, q.traitement_nom]);
+            });
+            if (!(Object.keys(queryTableQuatro).length === 0 && queryTableQuatro.constructor === Object)) {
+              queryTableTer.push(t.none(pgp.helpers.update(queryTableQuatro,null,'formulaire') + ' WHERE id =' + req.body.idForm));
+            }
+            return t.batch(queryTableTer);
+          });
+        } else {
+          aideController.bodyUpdate(req.body,data);
+          var queryTableTer = aideController.traitementUpdate(req.body);
+          var queryTableQuatro = aideController.formulaireJoin(req.body);
+          queryTableTer = queryTableTer.map(q => {
+            // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le traitement est déjà ajouté dans le formulaire
+            t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id, traitement_nom) SELECT $1, $2, $3 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2  AND traitement_nom = $3)', [q.formulaire_id, q.traitement_id, q.traitement_nom]);
+          });
+          if (!(Object.keys(queryTableQuatro).length === 0 && queryTableQuatro.constructor === Object)) {
+            queryTableTer.push(t.none(pgp.helpers.update(queryTableQuatro,null,'formulaire') + ' WHERE id =' + req.body.idForm));
+          }
+          return t.batch(queryTableTer);
+        }
       });
     } else {
       var queryTableBis = aideController.traitementUpdate(req.body);
       var queryTableTer = aideController.formulaireJoin(req.body);
       queryTableBis = queryTableBis.map(q => {
         // La clause SELECT WHERE NOT EXISTS permet de gérer le cas ou le traitement est déjà ajouté dans le formulaire
-        t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id) SELECT $1, $2 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2)', [q.formulaire_id, q.traitement_id]);
+        t.none('INSERT INTO formulaire_has_traitement(formulaire_id, traitement_id, traitement_nom) SELECT $1, $2, $3 WHERE NOT EXISTS(SELECT 1 FROM formulaire_has_traitement WHERE formulaire_id = $1 AND traitement_id = $2  AND traitement_nom = $3)', [q.formulaire_id, q.traitement_id, q.traitement_nom]);
       });
       if (!(Object.keys(queryTableTer).length === 0 && queryTableTer.constructor === Object)) {
         queryTableBis.push(t.none(pgp.helpers.update(queryTableTer,null,'formulaire') + ' WHERE id =' + req.body.idForm));
