@@ -5,4 +5,4 @@ npm-debug.log
 
 resources/
 install_serveur.bash
-"src/server/db/connection.js"
+src/server/db/connection.js
