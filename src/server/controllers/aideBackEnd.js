@@ -42,7 +42,7 @@ function formulaireJoin(body) {
         break;
       case 'date_naissanceForm':
         if (typeof body.date_naissanceForm === 'string' && /^([0-9]{2,3})$/.test(body.date_naissanceForm)) {
-          dataTable.date_naissance = body.date_naissanceForm;
+          dataTable.age = body.date_naissanceForm;
         }
         break;
       case 'phytoForm':
