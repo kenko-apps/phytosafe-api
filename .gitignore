@@ -2,7 +2,6 @@
 node_modules/
 npm-debug.log
 *.env
-
 resources/
 install_serveur.bash
 src/server/db/connection.js
