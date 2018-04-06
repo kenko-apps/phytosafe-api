@@ -5,23 +5,35 @@ const pgp = require('pg-promise')({
 const aideController = require('../controllers/aideBackEnd');
 const diacritics = require('../controllers/diacritics');
 
+/**
+ * Fonction qui permet de créer un formulaire coté serveur.
+ * Elle récupère la date et l'heure du formulaire, ainsi que la géolocalisation (si possible) du patient.
+ * Une fois le formulaire créé, elle renvoie un identifiant pour le formulaire (identifiant de la table formulaire).
+ * @method createForm
+ * @requires controllers/aideBackEnd - la fonction utilise les méthodes validateEntry, bodyUpdate, traitementUpdate, formulaireJoin, traitementProblem.
+ * @param {Object} - req, res, next sont les objets à passer en paramètres de la fonction.
+ * @returns {Object} - Un objet avec l'identifiant du formulaire est retourné par la fonction.
+ */
 function createForm(req, res, next) {
   //chaine de test : curl --data "dateForm=20171212&radioForm=oui" http://127.0.0.1:3000/api/v1/newform/
   //console.log('Creating form...');
-  var queryTable = aideController.validateEntry(req.body);
   var request = db.task(t => {
     return t.one(pgp.helpers.insert(aideController.formulaireJoin(req.body),null,'formulaire') + 'RETURNING id').then(d => {
       req.body.idForm = d.id;
+      //Création d'un tableau préparant la requête sur les organes/traitements qui n'ont pas d'identifiant
+      var queryTable = aideController.validateEntry(req.body);
       if (queryTable.length > 0) {
         return t.batch(queryTable.map(q => {
           return t.oneOrNone('SELECT id AS $1:name FROM $2:name WHERE nom_simple = $3', [q.alias, q.table, q.nom]);
         })).then(data => {
           aideController.bodyUpdate(req.body,data);
+          //Pour les traitements qui n'ont pas d'identifiants, une requête dans la table "traitement" est nécessaire pour aller chercher "autres_ttcan" ou "autres_phyto".
           var queryTableBis = aideController.traitementProblem(req.body);
           if (queryTableBis.length > 0) {
             return t.batch(queryTableBis.map(q => {
               return t.oneOrNone('SELECT id AS $1:name FROM traitement WHERE nom = $2', [q.alias, q.nom]);
             })).then(databis => {
+              // Mise à jour du body avec les identifiants trouvés (correspondant aux entrées du patient)
               aideController.bodyUpdate(req.body,databis);
               var queryTableTer = aideController.traitementUpdate(req.body);
               var queryTableQuatro = aideController.formulaireJoin(req.body);

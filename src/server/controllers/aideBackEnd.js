@@ -1,6 +1,13 @@
 /*jshint loopfunc: true */
 const diacritics = require('./diacritics');
 
+/**
+ * Fonction qui vérifie toutes les entrées envoyées par la requête (body au format JSON).
+ * Elle regarde le type de chaque variable et la confronte au format (REGEX) attendu.
+ * @method formulaireJoin
+ * @param {Object} - le body de la requête, qui est au format JSON, est passé en paramètre de la fonction.
+ * @returns {Object} - Un objet JSON avec les données qui ont passées le test.
+ */
 function formulaireJoin(body) {
   var dataTable = {};
   for (var propertyName in body) {
@@ -141,6 +148,13 @@ function traitementUpdate(body) {
   return queryTable;
 }
 
+/**
+ * Fonction qui, pour les traitements anti-cancéreux et phyto qui n'ont pas d'identifiants dans la table "traitement", prépare les requêtes qui vont chercher les identifiant corresponsant aux entrées "autres_ttcan" et "autres_phyto" de la table "traitement".
+ * Elle créé un tableau qui prépare les requêtes.
+ * @method traitementProblem
+ * @param {Object} - le body de la requête, qui est au format JSON, est passé en paramètre de la fonction.
+ * @returns {Array} - Un tableau avec le nom de l'entrée et la table où l'entrée devrait exister ("traitement").
+ */
 function traitementProblem(body) {
   var queryTable = [];
   class ProblemClass {
@@ -174,8 +188,16 @@ function traitementProblem(body) {
   return queryTable;
 }
 
+/**
+ * Fonction qui vérifie que les organes/traitements du formulaire envoyé ont un identifiant dans les tables "traitement" et "cancer".
+ * Elle créé un tableau avec les organes/traitements du formulaire envoyé qui n'ont pas d'identifiants.
+ * @method validateEntry
+ * @param {Object} - le body de la requête, qui est au format JSON, est passé en paramètre de la fonction.
+ * @returns {Array} - Un tableau avec le nom de l'entrée, la table où l'entrée devrait exister ("traitement" ou "cancer"), et un alias qui correspond au nom de la variable.
+ */
 function validateEntry(body) {
   var queryTable = [];
+  //Création d'une classe avec un alias (qui correspond à la variable traitée), la table où trouver la variable (si possible) et le nom de la vairable entrée par le patient.
   class EntryClass {
     constructor(alias, table, nom) {
       this.alias = alias;
@@ -183,12 +205,14 @@ function validateEntry(body) {
       this.nom = nom;
     }
   }
+  //Vérification de l'organe
   if (body.organeForm === 'AUCUN') {
     diacritics.remplace(body.nom_organeForm).split(' ').forEach(function(element) {
       queryTable.push(new EntryClass('organeForm', 'cancer', element));
     });
     queryTable.push(new EntryClass('organeForm', 'cancer', diacritics.remplace(body.nom_organeForm)));
   }
+  //Vérification du traitement anti-cancéreux
   var j = 1;
   var j_nom = 'traitementnom_' + j.toString() + '_Form';
   var j_id = 'traitementid_' + j.toString() + '_Form';
@@ -203,6 +227,7 @@ function validateEntry(body) {
     j_nom = 'traitementnom_' + j.toString() + '_Form';
     j_id = 'traitementid_' + j.toString() + '_Form';
   }
+  //Vérification du traitement phyto
   var i = 1;
   var i_nom = 'phytonom_' + i.toString() + '_Form';
   var i_id = 'phytoid_' + i.toString() + '_Form';
@@ -220,6 +245,13 @@ function validateEntry(body) {
   return queryTable;
 }
 
+/**
+ * Fonction qui met à jour la requête (body) avec les valeurs du tableau data passé à la fonction.
+ * Elle vérifie que les entrées du tableau ne sont pas nulles.
+ * @method formulaireJoin
+ * @param {Object, Array} - le body de la requête, qui est au format JSON, ainsi que le tableau avec les variables à modifier sont passées en paramètre de la fonction.
+ * @returns {} - Aucune valeur n'est retournées par la fonction.
+ */
 function bodyUpdate(body,data) {
   data.forEach(function(element) {
     var propertyName;
