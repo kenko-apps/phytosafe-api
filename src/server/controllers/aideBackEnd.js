@@ -99,6 +99,13 @@ function formulaireJoin(body) {
           dataTable.frequence_tabac = body.frequenceForm;
         }
         break;
+      case 'cannabisForm' :
+        if (body.cannabisForm === 'oui') {
+          dataTable.cannabis = true;
+        } else {
+          dataTable.cannabis = false;
+        }
+        break;
       case 'latitudeForm' :
         if (typeof body.latitudeForm === 'number') {
           dataTable.latitude = body.latitudeForm;
