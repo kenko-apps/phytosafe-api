@@ -116,6 +116,11 @@ function formulaireJoin(body) {
           dataTable.longitude = body.longitudeForm;
         }
         break;
+      case 'accordForm':
+        if (typeof body.accordForm === 'boolean') {
+          dataTable.accord = body.accordForm;
+        }
+        break;
     }
   }
   return dataTable;
