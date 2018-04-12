@@ -33,17 +33,17 @@ function formulaireJoin(body) {
         }
         break;
       case 'etatForm':
-        if (typeof body.etatForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 ]*)$/.test(body.etatForm)) {
+        if (typeof body.etatForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 \']*)$/.test(body.etatForm)) {
           dataTable.stade_maladie = body.etatForm;
         }
         break;
       case 'radioForm':
-        if (typeof body.radioForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 ]*)$/.test(body.radioForm)) {
+        if (typeof body.radioForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 \']*)$/.test(body.radioForm)) {
           dataTable.radio = body.radioForm;
         }
         break;
       case 'chirurgieForm':
-        if (typeof body.chirurgieForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 ]*)$/.test(body.chirurgieForm)) {
+        if (typeof body.chirurgieForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 \']*)$/.test(body.chirurgieForm)) {
           dataTable.chirurgie = body.chirurgieForm;
         }
         break;
