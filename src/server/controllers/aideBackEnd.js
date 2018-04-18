@@ -121,6 +121,11 @@ function formulaireJoin(body) {
           dataTable.accord = body.accordForm;
         }
         break;
+      case 'raisonRefusForm':
+        if (typeof body.raisonRefusForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 \']*)$/.test(body.raisonRefusForm)) {
+          dataTable.raison_refus = body.raisonRefusForm;
+        }
+        break;
     }
   }
   return dataTable;
