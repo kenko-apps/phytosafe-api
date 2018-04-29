@@ -1,3 +1,12 @@
+--create user
+CREATE ROLE s WITH LOGIN PASSWORD ''
+--create database
+CREATE DATABASE "Phytosafe"
+    WITH 
+    OWNER = 
+    ENCODING = 'UTF8'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1;
 
 --- donner tous les droits sur une base à un utilisateur
 GRANT ALL PRIVILEGES ON SCHEMA public TO s;
