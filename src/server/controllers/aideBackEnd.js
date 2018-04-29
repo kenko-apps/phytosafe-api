@@ -136,9 +136,9 @@ function formulaireJoin(body) {
           dataTable.fruits = body.fruitsForm;
         }
         break;
-      case 'setCenter':
-        if (typeof body.setCenter === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 \']*)$/.test(body.setCenter)) {
-          dataTable.centre = body.setCenter;
+      case 'centerForm':
+        if (typeof body.centerForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 \']*)$/.test(body.centerForm)) {
+          dataTable.centre = body.centerForm;
         }
         break;
     }
