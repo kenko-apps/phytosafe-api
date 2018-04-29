@@ -127,12 +127,12 @@ function formulaireJoin(body) {
         }
         break;
       case 'alimentsForm':
-        if (typeof body.alimentsForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 \']*)$/.test(body.alimentsForm)) {
+        if (typeof body.alimentsForm === 'string' && /^([0-9a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153\- \'\(\)]*)$/.test(body.alimentsForm)) {
           dataTable.aliments = body.alimentsForm;
         }
         break;
       case 'fruitsForm':
-        if (typeof body.fruitsForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 \']*)$/.test(body.fruitsForm)) {
+        if (typeof body.fruitsForm === 'string' && /^([0-9a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153\- \'\(\)]*)$/.test(body.fruitsForm)) {
           dataTable.fruits = body.fruitsForm;
         }
         break;
