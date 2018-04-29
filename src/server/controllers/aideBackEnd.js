@@ -126,6 +126,21 @@ function formulaireJoin(body) {
           dataTable.raison_refus = body.raisonRefusForm;
         }
         break;
+      case 'alimentsForm':
+        if (typeof body.alimentsForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 \']*)$/.test(body.alimentsForm)) {
+          dataTable.aliments = body.alimentsForm;
+        }
+        break;
+      case 'fruitsForm':
+        if (typeof body.fruitsForm === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 \']*)$/.test(body.fruitsForm)) {
+          dataTable.fruits = body.fruitsForm;
+        }
+        break;
+      case 'setCenter':
+        if (typeof body.setCenter === 'string' && /^([a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153 \']*)$/.test(body.setCenter)) {
+          dataTable.centre = body.setCenter;
+        }
+        break;
     }
   }
   return dataTable;
