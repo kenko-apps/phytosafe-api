@@ -126,6 +126,46 @@ function formulaireJoin(body) {
           dataTable.raison_refus = body.raisonRefusForm;
         }
         break;
+      case 'cafeForm':
+        if (typeof body.cafeForm === 'boolean') {
+          dataTable.cafe = body.cafeForm;
+        }
+        break;
+      case 'theForm':
+        if (typeof body.theForm === 'boolean') {
+          dataTable.the = body.theForm;
+        }
+        break;
+      case 'reglisseForm':
+        if (typeof body.reglisseForm === 'boolean') {
+          dataTable.reglisse = body.reglisseForm;
+        }
+        break;
+      case 'sojaForm':
+        if (typeof body.sojaForm === 'boolean') {
+          dataTable.soja = body.sojaForm;
+        }
+        break;
+      case 'pamplemousseForm':
+        if (typeof body.pamplemousseForm === 'boolean') {
+          dataTable.pamplemousse = body.pamplemousseForm;
+        }
+        break;
+      case 'pomeloForm':
+        if (typeof body.pomeloForm === 'boolean') {
+          dataTable.pomelo = body.pomeloForm;
+        }
+        break;
+      case 'orangeForm':
+        if (typeof body.orangeForm === 'boolean') {
+          dataTable.orange = body.orangeForm;
+        }
+        break;
+      case 'cranberryForm':
+        if (typeof body.cranberryForm === 'boolean') {
+          dataTable.cranberry = body.cranberryForm;
+        }
+        break;
     }
   }
   return dataTable;
