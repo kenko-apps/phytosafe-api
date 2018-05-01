@@ -166,11 +166,6 @@ function formulaireJoin(body) {
           dataTable.cranberry = body.cranberryForm;
         }
         break;
-      case 'fruitsForm':
-        if (typeof body.fruitsForm === 'string' && /^([0-9a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153\- \'\(\)]*)$/.test(body.fruitsForm)) {
-          dataTable.fruits = body.fruitsForm;
-        }
-        break;
       case 'centerForm':
         if (typeof body.centerForm === 'string' && /^([0-9a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153\- \'\(\)]*)$/.test(body.centerForm)) {
           dataTable.centre = body.centerForm;
