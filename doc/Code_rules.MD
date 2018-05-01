@@ -1,7 +1,7 @@
 
 
 ##Git :##
-Faire des commit unitaires!
+Faire des commits unitaires
 Toujours tester le build et démarrage de l'appli / du serveur avant de commiter
 
 ##Code : General advices :##
