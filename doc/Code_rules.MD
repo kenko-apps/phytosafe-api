@@ -1,4 +1,10 @@
 
+##Projet :#
+Documenter tous problèmes qui nous ont pris plus de 3 minutes à résoudre dans le fichiers Trouble.MD
+Ecrire tous les outils/méthodes de travail dans le fichier Advice.MD
+Ecrire tous les problème qu'on voit et que ne peut pas corriger tout de suite dans le fichier TODO.MD
+C'est du temps gagné pour tout le monde!
+
 
 ##Git :##
 Faire des commits unitaires
