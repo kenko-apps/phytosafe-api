@@ -172,7 +172,7 @@ function formulaireJoin(body) {
         }
         break;
       case 'dureeForm':
-        if (typeof body.dureeForm === 'string' && /^([0-9a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153\- \'\(\)]*)$/.test(body.centerForm)) {
+        if (typeof body.dureeForm === 'string' && /^([0-9a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153\- \'\(\)]*)$/.test(body.dureeForm)) {
           dataTable.duree_maladie = body.dureeForm;
         }
         break;
