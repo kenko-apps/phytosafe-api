@@ -176,6 +176,11 @@ function formulaireJoin(body) {
           dataTable.duree_maladie = body.dureeForm;
         }
         break;
+      case 'gastrectomieForm':
+        if (typeof body.gastrectomieForm === 'string' && /^([0-9a-zA-Zéèêëàäâùüûïîöôçÿ\u0152\u0153\- \'\(\)]*)$/.test(body.gastrectomieForm)) {
+          dataTable.gastrectomie = body.gastrectomieForm;
+        }
+        break;
     }
   }
   return dataTable;
